@@ -1,32 +1,11 @@
 import 'reflect-metadata'
-import * as Express from 'express'
-import { ApolloServer, gql } from 'apollo-server-express'
-import { a } from '@crispo/common'
 
-// The GraphQL schema
-const typeDefs = gql`
-  type Query {
-    "A simple type for getting started!"
-    hello: String
-  }
-`
+// Load environment variable
+import * as Dotenv from 'dotenv-safe'
+Dotenv.config()
 
-// A map of functions which return data for the schema.
-const resolvers = {
-  Query: {
-    hello: () => a,
-  },
-}
+import { startServer } from './startServer'
 
-const app = Express()
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+startServer().catch(e => {
+  console.log(e)
 })
-
-server.applyMiddleware({ app })
-
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
-)
