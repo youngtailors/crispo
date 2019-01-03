@@ -1,5 +1,12 @@
-import { PrimaryGeneratedColumn, Entity, Column, BaseEntity } from 'typeorm'
+import {
+  PrimaryGeneratedColumn,
+  Entity,
+  Column,
+  BaseEntity,
+  BeforeInsert,
+} from 'typeorm'
 import { ObjectType, Field, ID } from 'type-graphql'
+import * as Bcryptjs from 'bcryptjs'
 
 @ObjectType()
 @Entity({
@@ -28,4 +35,9 @@ export class User extends BaseEntity {
   @Field()
   @Column({ type: 'text', nullable: true })
   bio?: string
+
+  @BeforeInsert()
+  async hashPasswordBeforeInsert() {
+    this.password = await Bcryptjs.hash(this.password, 10)
+  }
 }
