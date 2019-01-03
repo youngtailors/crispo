@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "build": "lerna run build --scope=@crispo/common"
+    "build:server": "lerna run build --scope={@crispo/common,@crispo/server}"
   },
   "workspaces": {
     "packages": [
