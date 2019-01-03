@@ -2,7 +2,7 @@ require('dotenv-safe').config()
 const isProd = process.env.NODE_ENV === 'production'
 
 module.exports = {
-  name: process.env.NODE_ENV,
+  name: 'default',
   type: 'postgres',
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10),
@@ -12,7 +12,7 @@ module.exports = {
   entities: [`src/entities/*.ts`],
   subscribers: [`src/subscribers/*.ts`],
   migrations: [`src/migrations/*.ts`],
-  synchronize: !isProd,
+  migrationsRun: !isProd,
   logging: !isProd,
   cli: {
     entitiesDir: 'src/entities',
