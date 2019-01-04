@@ -1,14 +1,20 @@
 import { Resolver, Query, Mutation, Arg, InputType, Field } from 'type-graphql'
 import { User } from '../../entities/User'
-import { MaxLength } from 'class-validator'
+import { MaxLength, IsEmail, MinLength } from 'class-validator'
 
 @InputType()
 class NewUserDataInput implements Partial<User> {
   @Field()
-  @MaxLength(50)
+  @IsEmail()
+  email: string
+
+  @Field()
+  @MinLength(6)
+  @MaxLength(60)
   username: string
 
   @Field()
+  @MinLength(6)
   @MaxLength(100)
   password: string
 }
@@ -23,16 +29,12 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async createUser(@Arg('userData')
-  {
-    username,
-    password,
-  }: NewUserDataInput): Promise<User | null> {
+  async createUser(
+    @Arg('userData')
+    userData: NewUserDataInput,
+  ): Promise<User | null> {
     try {
-      const user = User.create({
-        username,
-        password,
-      }).save()
+      const user = User.create(userData).save()
       return user
     } catch (e) {
       console.log(e)
