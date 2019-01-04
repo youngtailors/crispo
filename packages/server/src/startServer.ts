@@ -53,6 +53,20 @@ export const startServer = async () => {
     },
   })
 
+  app.use(async (req: any, _, next) => {
+    const authorization = req.headers.authorization
+
+    if (authorization) {
+      try {
+        const token = authorization.split(' ')[1]
+        const user = await authStrategy.validate(token)
+        req.user = user
+      } catch (_) {}
+    }
+
+    return next()
+  })
+
   server.applyMiddleware({ app })
 
   app.listen({ port: 4000 }, () =>

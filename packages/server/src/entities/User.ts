@@ -45,4 +45,8 @@ export class User {
     this.password = await Bcryptjs.hash(this.password, 10)
     this.version = 1
   }
+
+  async verifyPassword(password: string) {
+    return Bcryptjs.compare(password, this.password)
+  }
 }

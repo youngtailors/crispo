@@ -1,11 +1,9 @@
-import { Repository } from 'typeorm'
-import { User } from '../entities/User'
 import { UserRepository } from '../repositories/User'
 import { AuthStrategy } from '../types/AuthStrategy'
-import { NewUserDataInput } from '../modules/users/resolver'
+import { NewUserDataInput } from '../modules/auth/typeDefs'
 
 export class UserManager {
-  repository: Repository<User>
+  repository: UserRepository
 
   authStrategy: AuthStrategy
 
@@ -14,8 +12,18 @@ export class UserManager {
     this.authStrategy = authStrategy
   }
 
-  login() {
-    console.log('ahihi')
+  async login(email: string, password: string) {
+    let user
+    try {
+      user = await this.repository.findByEmail(email)
+    } catch (e) {
+      throw e
+    }
+    const checkPass = user.verifyPassword(password)
+    if (!checkPass) {
+      throw new Error('Wrong username or password')
+    }
+    return this.authStrategy.authenticate(user)
   }
 
   async signUp(newUserData: NewUserDataInput): Promise<string> {
