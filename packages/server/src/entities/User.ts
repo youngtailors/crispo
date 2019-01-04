@@ -1,10 +1,4 @@
-import {
-  PrimaryGeneratedColumn,
-  Entity,
-  Column,
-  BaseEntity,
-  BeforeInsert,
-} from 'typeorm'
+import { PrimaryGeneratedColumn, Entity, Column, BeforeInsert } from 'typeorm'
 import { ObjectType, Field, ID } from 'type-graphql'
 import * as Bcryptjs from 'bcryptjs'
 
@@ -12,7 +6,7 @@ import * as Bcryptjs from 'bcryptjs'
 @Entity({
   name: 'users',
 })
-export class User extends BaseEntity {
+export class User {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid', {})
   id: string
@@ -42,6 +36,9 @@ export class User extends BaseEntity {
 
   @Column({ type: 'int' })
   version: number
+
+  @Field()
+  access_token: string
 
   @BeforeInsert()
   async hashPasswordBeforeInsert() {

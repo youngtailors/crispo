@@ -4,8 +4,14 @@ import { createTypeormConn } from './createTypeormConn'
 import { buildSchema } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { get } from 'lodash'
+import { v4 } from 'uuid'
 import { ValidationError } from 'class-validator'
 import { formatError } from './utils/formatError'
+import { CrispoContext } from './types/Context'
+import { UserManager } from './managers/User'
+import { JWTAuthentication } from './utils/jwt'
+import { getCustomRepository } from 'typeorm'
+import { UserRepository } from './repositories/User'
 
 export const startServer = async () => {
   const conn = await createTypeormConn()
@@ -13,9 +19,18 @@ export const startServer = async () => {
 
   const app = Express()
 
+  const userRepository = getCustomRepository(UserRepository)
+  const authStrategy = new JWTAuthentication(userRepository)
+
   const server = new ApolloServer({
     schema: await buildSchema({
       resolvers: [__dirname + '/modules/**/resolver.*'],
+    }),
+    context: ({ req }: any): CrispoContext => ({
+      req,
+      managers: {
+        user: new UserManager(userRepository, authStrategy),
+      },
     }),
     formatError: (error: GraphQLError) => {
       if (error.originalError instanceof ApolloError) {
@@ -25,10 +40,16 @@ export const startServer = async () => {
       const errors = get(
         error,
         'extensions.exception.validationErrors',
-        [],
+        null,
       ) as ValidationError[]
 
-      return formatError(errors)
+      if (errors) {
+        return formatError(errors)
+      }
+
+      const id = v4()
+      console.error(error)
+      return new GraphQLError(`Internal server error: ${id}`)
     },
   })
 
