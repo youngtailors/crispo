@@ -3,8 +3,7 @@ import * as Express from 'express'
 import { createTypeormConn } from './createTypeormConn'
 import { buildSchema } from 'type-graphql'
 import { GraphQLError } from 'graphql'
-import { get } from 'lodash'
-import { v4 } from 'uuid'
+import { get, omit } from 'lodash'
 import { ValidationError } from 'class-validator'
 import { formatError } from './utils/formatError'
 import { CrispoContext } from './types/Context'
@@ -25,6 +24,9 @@ export const startServer = async () => {
   const server = new ApolloServer({
     schema: await buildSchema({
       resolvers: [__dirname + '/modules/**/resolver.*'],
+      authChecker: ({ context }) => {
+        return context.req.user
+      },
     }),
     context: ({ req }: any): CrispoContext => ({
       req,
@@ -46,10 +48,8 @@ export const startServer = async () => {
       if (errors) {
         return formatError(errors)
       }
-
-      const id = v4()
       console.error(error)
-      return new GraphQLError(`Internal server error: ${id}`)
+      return omit(error, ['extensions'])
     },
   })
 
