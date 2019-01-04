@@ -19,6 +19,10 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ type: 'text', unique: true })
+  email: string
+
+  @Field()
+  @Column({ type: 'text', unique: true })
   username: string
 
   @Column({ type: 'text' })
@@ -36,8 +40,12 @@ export class User extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   bio?: string
 
+  @Column({ type: 'int' })
+  version: number
+
   @BeforeInsert()
   async hashPasswordBeforeInsert() {
     this.password = await Bcryptjs.hash(this.password, 10)
+    this.version = 1
   }
 }
