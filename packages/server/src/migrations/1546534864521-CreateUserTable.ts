@@ -14,6 +14,11 @@ export class CreateUserTable1546534864521 implements MigrationInterface {
             default: 'gen_random_uuid()',
           },
           {
+            name: 'email',
+            type: 'text',
+            isUnique: true,
+          },
+          {
             name: 'username',
             type: 'text',
             isUnique: true,
@@ -36,6 +41,10 @@ export class CreateUserTable1546534864521 implements MigrationInterface {
             name: 'bio',
             type: 'text',
             isNullable: true,
+          },
+          {
+            name: 'version',
+            type: 'int',
           },
         ],
       }),

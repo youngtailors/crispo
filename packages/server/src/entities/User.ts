@@ -1,10 +1,4 @@
-import {
-  PrimaryGeneratedColumn,
-  Entity,
-  Column,
-  BaseEntity,
-  BeforeInsert,
-} from 'typeorm'
+import { PrimaryGeneratedColumn, Entity, Column, BeforeInsert } from 'typeorm'
 import { ObjectType, Field, ID } from 'type-graphql'
 import * as Bcryptjs from 'bcryptjs'
 
@@ -12,10 +6,14 @@ import * as Bcryptjs from 'bcryptjs'
 @Entity({
   name: 'users',
 })
-export class User extends BaseEntity {
+export class User {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid', {})
   id: string
+
+  @Field()
+  @Column({ type: 'text', unique: true })
+  email: string
 
   @Field()
   @Column({ type: 'text', unique: true })
@@ -36,8 +34,19 @@ export class User extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   bio?: string
 
+  @Column({ type: 'int' })
+  version: number
+
+  @Field()
+  access_token: string
+
   @BeforeInsert()
   async hashPasswordBeforeInsert() {
     this.password = await Bcryptjs.hash(this.password, 10)
+    this.version = 1
+  }
+
+  async verifyPassword(password: string) {
+    return Bcryptjs.compare(password, this.password)
   }
 }
